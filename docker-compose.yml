@@ -7,7 +7,6 @@ services:
     restart: always
     ports:
       - 27017:27017
-    network_mode: host
     volumes:
       - $HOME/mongo:/data/db
     healthcheck:
@@ -16,13 +15,19 @@ services:
   superhero-service:
     container_name: smdc-crud-superhero-service
     build: superhero-service
+    environment:
+      - spring.data.mongodb.host=mongo    
+      - SWAGGER_URL=/swagger-ui.html
+      - API_URL=http://localhost:8088/v2/api-docs
+    volumes:
+      - ./swagger-ui:/usr/share/nginx/html
+    command: ["nginx", "-g", "daemon off;"]
     image: superhero-service
     depends_on:
       - mongo
-    network_mode: "host"
-    hostname: localhost
     restart: always
     ports:
-      - 8088:8088
+      - 8088:8088      
+      - 8080:8080
     healthcheck:
       test: "exit 0"
